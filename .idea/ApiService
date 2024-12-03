@@ -1,0 +1,41 @@
+// src/main/java/com/example/oauthclient/service/ApiService.java
+package com.example.oauthclient.service;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class ApiService {
+
+    private final RestTemplate restTemplate;
+    private final AuthService authService;
+
+    public ApiService(RestTemplate restTemplate, AuthService authService) {
+        this.restTemplate = restTemplate;
+        this.authService = authService;
+    }
+
+    public String callApi(String apiUrl) {
+        // Get Bearer Token
+        String accessToken = authService.getAccessToken();
+
+        // Set Authorization Header
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        // Call protected API
+        ResponseEntity<String> response = restTemplate.exchange(
+                apiUrl,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        return response.getBody();
+    }
+}

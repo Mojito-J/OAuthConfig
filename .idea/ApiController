@@ -1,0 +1,25 @@
+// src/main/java/com/example/oauthclient/controller/ApiController.java
+package com.example.oauthclient.controller;
+
+import com.example.oauthclient.service.ApiService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ApiController {
+
+    private final ApiService apiService;
+
+    @Value("${api.resource-url}")
+    private String resourceUrl;
+
+    public ApiController(ApiService apiService) {
+        this.apiService = apiService;
+    }
+
+    @GetMapping("/fetch-resource")
+    public String fetchResource() {
+        return apiService.callApi(resourceUrl);
+    }
+}

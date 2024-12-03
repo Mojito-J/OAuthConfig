@@ -1,0 +1,52 @@
+// src/main/java/com/example/oauthclient/service/AuthService.java
+package com.example.oauthclient.service;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class AuthService {
+
+    private final RestTemplate restTemplate;
+
+    @Value("${auth.token-uri}")
+    private String tokenUri;
+
+    @Value("${auth.client-id}")
+    private String clientId;
+
+    @Value("${auth.client-secret}")
+    private String clientSecret;
+
+    public AuthService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public String getAccessToken() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(clientId, clientSecret); // Basic Auth Header
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("grant_type", "client_credentials");
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                tokenUri,
+                HttpMethod.POST,
+                entity,
+                Map.class
+        );
+
+        // Extract token from the response
+        return (String) response.getBody().get("access_token");
+    }
+}
